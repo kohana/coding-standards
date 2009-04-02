@@ -79,6 +79,13 @@ class Kohana_Sniffs_ControlStructures_SwitchSniff implements PHP_CodeSniffer_Sni
             return;
         }
 
+        // Account for typos using ; instead of : on case lines
+        if (!isset($tokens[$stackPtr]['scope_opener'])) {
+            $error = 'Potential use of ; instead of : on a case line';
+            $phpcsFile->addWarning($error, $stackPtr);
+            return;
+        }
+
         // Code inside case and default blocks should be indented
         for (
             $open = $tokens[$stackPtr]['scope_opener']; 

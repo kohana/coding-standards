@@ -40,7 +40,7 @@ class Kohana_Tests_ControlStructures_SwitchUnitTest extends AbstractSniffUnitTes
         return array(
             7 => 1,
             9 => 1,
-            13 => 1
+            14 => 1
         );
     }
 
@@ -55,7 +55,9 @@ class Kohana_Tests_ControlStructures_SwitchUnitTest extends AbstractSniffUnitTes
      */
     public function getWarningList()
     {
-        return array();
+        return array(
+            12 => 1
+        );
     }
 }
 
