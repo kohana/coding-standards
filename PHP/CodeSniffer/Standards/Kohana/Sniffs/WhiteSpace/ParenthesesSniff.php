@@ -83,8 +83,8 @@ class Kohana_Sniffs_WhiteSpace_ParenthesesSniff implements PHP_CodeSniffer_Sniff
                 $prevPtr = $phpcsFile->findPrevious(T_WHITESPACE, $stackPtr - 1, null, true);
                 if ($tokens[$stackPtr + 1]['type'] == 'T_WHITESPACE'
                     && !in_array($tokens[$prevPtr]['type'], array('T_STRING', 'T_ARRAY'))
-                    && !in_array($tokens[$stackPtr + 2]['type'], array('T_BITWISE_AND', 'T_BOOLEAN_NOT'))) {
-                    $error = 'Whitespace after an opening parenthesis is only allowed when ! or & immediately follows';
+                    && !in_array($tokens[$stackPtr + 2]['type'], array('T_BITWISE_AND', 'T_BOOLEAN_NOT', 'T_ARRAY_CAST', 'T_BOOL_CAST', 'T_DOUBLE_CAST', 'T_INT_CAST', 'T_OBJECT_CAST', 'T_STRING_CAST', 'T_UNSET_CAST'))) {
+                    $error = 'Whitespace after an opening parenthesis is only allowed when !, &, or a typecasting operator immediately follows';
                     $phpcsFile->addError($error, $stackPtr);
                 }
                 break;

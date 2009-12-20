@@ -6,6 +6,7 @@ if($foo == $bar)
 if(!$foo)
 if ( $foo == $bar )
 if (! $foo)
+if ( (int) $some_value)
 array
 (
 )
