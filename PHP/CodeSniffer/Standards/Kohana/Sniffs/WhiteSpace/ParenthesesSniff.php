@@ -100,6 +100,11 @@ class Kohana_Sniffs_WhiteSpace_ParenthesesSniff implements PHP_CodeSniffer_Sniff
                 break;
 
             case 'T_BITWISE_AND':
+                // Allow the =& operator 
+                $before = $tokens[$stackPtr - 1];
+                if($before['type'] === 'T_EQUAL' || $before['content'] === '=') {
+                    continue;
+                }
             case 'T_BOOLEAN_NOT':
                 $before = $tokens[$stackPtr - 1];
                 $after = $tokens[$stackPtr + 1];
