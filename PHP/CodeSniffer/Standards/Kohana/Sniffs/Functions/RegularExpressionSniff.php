@@ -84,11 +84,12 @@ class Kohana_Sniffs_Functions_RegularExpressionSniff implements PHP_CodeSniffer_
                 }
 
                 // Is the replacement surrounded by single quotes?
+				// In some cases this functionality is required, hence this is a warning
                 $nextPtr = $phpcsFile->findNext(T_CONSTANT_ENCAPSED_STRING, $nextPtr + 1); 
                 $content = $tokens[$nextPtr]['content'];
                 if (substr($content, 0, 1) == '"') {
-                    $error = 'Regular expressions must be surrounded by single quotes';
-                    $phpcsFile->addError($error, $stackPtr);
+                    $error = 'It is recommended that regular expression replacements are surrounded by single quotes';
+                    $phpcsFile->addWarning($error, $stackPtr);
                 }
 
                 // Is the replacement using the $n notation for backreferences?
