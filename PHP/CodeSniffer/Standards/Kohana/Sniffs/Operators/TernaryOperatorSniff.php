@@ -131,6 +131,16 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
                 case 'T_ARRAY':
                     break;
 
+                // Allow casts to be outside of brackets
+                case 'T_STRING_CAST':
+                case 'T_ARRAY_CAST':
+                case 'T_DOUBLE_CAST':
+                case 'T_INT_CAST':
+                case 'T_OBJECT_CAST':
+                case 'T_UNSET_CAST':
+                case 'T_BOOL_CAST':
+                    break;
+
                 // If the expression is a variable, function call, or array/string access, skip past it and continue 
                 case 'T_VARIABLE':
                 case 'T_STRING':
