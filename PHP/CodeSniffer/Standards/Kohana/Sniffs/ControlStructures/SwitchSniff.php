@@ -79,8 +79,11 @@ class Kohana_Sniffs_ControlStructures_SwitchSniff implements PHP_CodeSniffer_Sni
             return;
         }
 
+        // In this context the scope opener is either a colon or semicolon
+        $stackPtrScopeOpener = $tokens[$stackPtr]['scope_opener'];
+
         // Account for typos using ; instead of : on case lines
-        if (!isset($tokens[$stackPtr]['scope_opener'])) {
+        if ($tokens[$stackPtrScopeOpener]['type'] === 'T_SEMICOLON') {
             $error = 'Potential use of ; instead of : on a case line';
             $phpcsFile->addWarning($error, $stackPtr);
             return;
