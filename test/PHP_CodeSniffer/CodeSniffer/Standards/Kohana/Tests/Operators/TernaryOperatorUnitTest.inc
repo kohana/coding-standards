@@ -8,3 +8,4 @@ $foo = ($bar == $foo)
     ? $foo
     : $bar;
 $foo = $bar ? -1 : $bar;
+$foo = $bar ? (string) $foobar : $bar;
