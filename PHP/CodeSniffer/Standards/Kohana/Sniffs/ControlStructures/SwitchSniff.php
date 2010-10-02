@@ -13,7 +13,7 @@
  */
 
 /**
- * Throws errors if switch structures do not conform to the coding standard. 
+ * Throws errors if switch structures do not conform to the coding standard.
  *
  * @category  PHP
  * @package   PHP_CodeSniffer
@@ -41,9 +41,9 @@ class Kohana_Sniffs_ControlStructures_SwitchSniff implements PHP_CodeSniffer_Sni
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile All the tokens found in the 
+     * @param PHP_CodeSniffer_File $phpcsFile All the tokens found in the
      *        document
-     * @param int $stackPtr Position of the current token in the stack passed 
+     * @param int $stackPtr Position of the current token in the stack passed
      *        in $tokens
      * @return void
      */
@@ -52,7 +52,7 @@ class Kohana_Sniffs_ControlStructures_SwitchSniff implements PHP_CodeSniffer_Sni
         $tokens = $phpcsFile->getTokens();
         $line = $tokens[$stackPtr]['line'];
         $tokenCount = $phpcsFile->numTokens - 1;
-        
+
         // Each case, break, and default should be on a separate line
         $start = $end = $stackPtr;
         while ($tokens[$start]['line'] == $line && $start > 0) {
@@ -91,8 +91,8 @@ class Kohana_Sniffs_ControlStructures_SwitchSniff implements PHP_CodeSniffer_Sni
 
         // Code inside case and default blocks should be indented
         for (
-            $open = $tokens[$stackPtr]['scope_opener']; 
-            $tokens[$open]['line'] == $line; 
+            $open = $tokens[$stackPtr]['scope_opener'];
+            $tokens[$open]['line'] == $line;
             $open++
         );
 
@@ -107,8 +107,25 @@ class Kohana_Sniffs_ControlStructures_SwitchSniff implements PHP_CodeSniffer_Sni
         $tabString = str_repeat("\t", $tabCount);
 
         foreach (range($open, $close) as $tokenPtr) {
+
+            // The first condition checks that we're on a new line (so we can check the indent)
+            // The second checks to see if there is sufficient indent
             if ($tokens[$tokenPtr]['line'] == $tokens[$tokenPtr - 1]['line'] + 1
                 && substr($tokens[$tokenPtr]['content'], 0, $tabCount) != $tabString) {
+
+                // We now need to have a look along the line and see if there're any case / default
+                // tags in case we're allowing conditions to drop through
+                for (
+                    $localTokenPtr = $tokenPtr;
+                    $tokens[$localTokenPtr]['line'] === $tokens[$localTokenPtr + 1]['line'];
+                    $localTokenPtr++
+                ) {
+                    // If there's a break or default tag on this line then we need to move onto the next line
+                    if(in_array($tokens[$localTokenPtr]['type'], array('T_CASE', 'T_DEFAULT'))) {
+                        continue 2;
+                    }
+                }
+
                 $phpcsFile->addError('Code inside case and default blocks should be indented', $tokenPtr);
             }
         }

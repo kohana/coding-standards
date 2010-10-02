@@ -14,3 +14,12 @@ switch (true) {
 	echo 'default case';
 	break;
 }
+
+switch(TRUE) {
+	case TRUE:
+		return TRUE;
+	case FALSE:
+		return FALSE;
+	default:
+		return 'pie';
+}
