@@ -15,3 +15,5 @@ $foo = new DateTime($bar, new DateTimeZone($baz ? $baz : date_default_timezone_g
 $foo = $bar['a'][0] ? $baz->foo : FALSE;
 echo MyClass::$property ? MyClass::CONSTANT : MyClass::method();
 return isset($this->$key) ? $this->$key : NULL;
+array('a' => $foo ? $bar : $baz);
+array('a', 'b' => $foo ? $bar : $baz);

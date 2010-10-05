@@ -84,7 +84,7 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
             $endPtr = end($tokens[$stackPtr]['nested_parenthesis']);
             $startPtr = key($tokens[$stackPtr]['nested_parenthesis']);
 
-            if ($comma = $this->_find_previous(T_COMMA, $tokens, $stackPtr - 1, $startPtr, $startPtr))
+            if ($comma = $this->_find_previous(array(T_COMMA, T_DOUBLE_ARROW), $tokens, $stackPtr - 1, $startPtr, $startPtr))
             {
                 $startPtr = $comma;
             }
@@ -230,20 +230,25 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
     /**
      * Find the index of the next token of a certain type in a particular parentheses group
      *
-     * @param   integer $type           Token type to find
-     * @param   array   $tokens         Tokens to search
-     * @param   integer $start          Index from which to begin
-     * @param   integer $end            Index at which to abort
-     * @param   integer $parenthesis    Index of the closing parenthesis or NULL
+     * @param   array|integer   $type           Token type(s) to find
+     * @param   array           $tokens         Tokens to search
+     * @param   integer         $start          Index from which to begin
+     * @param   integer         $end            Index at which to abort
+     * @param   integer         $parenthesis    Index of the closing parenthesis or NULL
      * @return  integer|FALSE   Index of the next token or FALSE
      */
     protected function _find_next($type, $tokens, $start, $end, $parenthesis)
     {
+        if ( ! is_array($type))
+        {
+            $type = array($type);
+        }
+
         if ($parenthesis === NULL)
         {
             for ($i = $start; $i < $end; ++$i)
             {
-                if ($tokens[$i]['code'] === $type AND empty($tokens[$i]['nested_parenthesis']))
+                if (in_array($tokens[$i]['code'], $type) AND empty($tokens[$i]['nested_parenthesis']))
                     return $i;
             }
         }
@@ -251,7 +256,7 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
         {
             for ($i = $start; $i < $end; ++$i)
             {
-                if ($tokens[$i]['code'] === $type AND ! empty($tokens[$i]['nested_parenthesis']) AND $parenthesis === end($tokens[$i]['nested_parenthesis']))
+                if (in_array($tokens[$i]['code'], $type) AND ! empty($tokens[$i]['nested_parenthesis']) AND $parenthesis === end($tokens[$i]['nested_parenthesis']))
                     return $i;
             }
         }
@@ -262,20 +267,25 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
     /**
      * Find the index of the previous token of a certain type in a particular parentheses group
      *
-     * @param   integer $type           Token type to find
-     * @param   array   $tokens         Tokens to search
-     * @param   integer $start          Index from which to begin
-     * @param   integer $end            Index at which to abort
-     * @param   integer $parenthesis    Index of the opening parenthesis or NULL
+     * @param   array|integer   $type           Token type(s) to find
+     * @param   array           $tokens         Tokens to search
+     * @param   integer         $start          Index from which to begin
+     * @param   integer         $end            Index at which to abort
+     * @param   integer         $parenthesis    Index of the opening parenthesis or NULL
      * @return  integer|FALSE   Index of the next token or FALSE
      */
     protected function _find_previous($type, $tokens, $start, $end, $parenthesis)
     {
+        if ( ! is_array($type))
+        {
+            $type = array($type);
+        }
+
         if ($parenthesis === NULL)
         {
             for ($i = $start; $i >= $end; --$i)
             {
-                if ($tokens[$i]['code'] === $type AND empty($tokens[$i]['nested_parenthesis']))
+                if (in_array($tokens[$i]['code'], $type) AND empty($tokens[$i]['nested_parenthesis']))
                     return $i;
             }
         }
@@ -283,7 +293,7 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
         {
             for ($i = $start; $i >= $end; --$i)
             {
-                if ($tokens[$i]['code'] === $type AND ! empty($tokens[$i]['nested_parenthesis']))
+                if (in_array($tokens[$i]['code'], $type) AND ! empty($tokens[$i]['nested_parenthesis']))
                 {
                     end($tokens[$i]['nested_parenthesis']);
 
