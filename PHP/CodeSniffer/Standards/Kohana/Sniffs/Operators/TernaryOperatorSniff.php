@@ -7,20 +7,20 @@
  * @category  PHP
  * @package   PHP_CodeSniffer
  * @author    Matthew Turland <matt@ishouldbecoding.com>
+ * @author    Chris Bandy <chris.bandy@kohanaphp.com>
  * @license   http://matrix.squiz.net/developer/tools/php_cs/licence BSD Licence
- * @version   CVS: $Id$
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
 
 /**
- * Throws errors if ternary expressions use parentheses improperly or exceed 
- * 80 characters in length on a single line.
+ * Logs an error when a ternary operation is not in parentheses. Operands must also be in
+ * parentheses unless it is a single variable, array access, object access or function call.
  *
  * @category  PHP
  * @package   PHP_CodeSniffer
  * @author    Matthew Turland <matt@ishouldbecoding.com>
+ * @author    Chris Bandy <chris.bandy@kohanaphp.com>
  * @license   http://matrix.squiz.net/developer/tools/php_cs/licence BSD Licence
- * @version   Release: @release_version@
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
 class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sniff
@@ -40,28 +40,16 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile All the tokens found in the 
-     *        document
-     * @param int $stackPtr Position of the current token in the stack passed 
-     *        in $tokens
+     * @param PHP_CodeSniffer_File $phpcsFile
+     * @param int $stackPtr Position of the current token in the stack
      * @return void
      */
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 
-        // Find the start of the ternary expression 
-        // Parentheses surrounding the entire ternary
-        // Ex: ($condition ? $true : $false)
-        if (!empty($tokens[$stackPtr]['nested_parenthesis'])) {
-            $startPtr = key($tokens[$stackPtr]['nested_parenthesis']);
-            $endPtr = current($tokens[$stackPtr]['nested_parenthesis']);
-
-        // Ternary is assigned, returned, or output
-        // Ex: $foo = $condition ? $true : $false;
-        //     return $condition ? $true : $false; 
-        //     echo $condition ? $true : $false;
-        } else {
+        if (empty($tokens[$stackPtr]['nested_parenthesis']))
+        {
             $allowed = array(
                 T_EQUAL,
                 T_RETURN,
@@ -78,105 +66,231 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
                 T_SR_EQUAL,
                 T_XOR_EQUAL
             );
-            $startPtr = $phpcsFile->findPrevious($allowed, $stackPtr);
-            $endPtr = $phpcsFile->findNext(T_SEMICOLON, $stackPtr);
+
+            $startPtr = $phpcsFile->findPrevious($allowed, $stackPtr - 1, NULL, FALSE, NULL, TRUE);
+            $endPtr = $phpcsFile->findNext(T_SEMICOLON, $stackPtr + 1);
+
+            if ($startPtr === FALSE)
+            {
+                $error = 'Ternary operation must occur within assignment, echo or return statement';
+                $phpcsFile->addError($error, $stackPtr, 'TernaryStart');
+            }
+
+            $colonPtr = $this->_find_next(T_COLON, $tokens, $stackPtr + 1, $endPtr, NULL);
+        }
+        else
+        {
+            // Inside an array or function call
+            $endPtr = end($tokens[$stackPtr]['nested_parenthesis']);
+            $startPtr = key($tokens[$stackPtr]['nested_parenthesis']);
+
+            if ($comma = $this->_find_previous(T_COMMA, $tokens, $stackPtr - 1, $startPtr, $startPtr))
+            {
+                $startPtr = $comma;
+            }
+
+            $colonPtr = $this->_find_next(T_COLON, $tokens, $stackPtr + 1, $endPtr, $endPtr);
+
+            if ($comma = $this->_find_next(T_COMMA, $tokens, $colonPtr + 1, $endPtr, $endPtr))
+            {
+                $endPtr = $comma;
+            }
         }
 
-        // If the ternary is not assigned or returned, error and bail out
-        if ($startPtr === false || $tokens[$startPtr]['line'] < $tokens[$stackPtr]['line'] - 1) {
-            $error = 'Ternary operations must only occur within properly formatted assignment or return statements';
-            $phpcsFile->addError($error, $stackPtr);
-            return;
+        if ($tokens[$startPtr]['line'] < $tokens[$stackPtr]['line'] - 1)
+        {
+            $error = 'Ternary operator must appear on the same or following line of its condition';
+            $phpcsFile->addError($error, $stackPtr, 'TernaryLine');
         }
 
-        // Find the colon separating the true and false values
-        $colonPtr = $phpcsFile->findNext(T_COLON, $stackPtr + 1);
-
-        // Ensure the colon is on the same or next line, error and bail out if not
-        if ($colonPtr === false || $tokens[$colonPtr]['line'] > $tokens[$stackPtr]['line'] + 1) {
-            $error = 'Colon must appear on the same or following line of ternary operator';
-            $phpcsFile->addError($error, $stackPtr);
-            return;
+        if ($tokens[$colonPtr]['line'] > $tokens[$stackPtr]['line'] + 1)
+        {
+            $error = 'Colon must appear on the same or following line of its ternary operator';
+            $phpcsFile->addError($error, $stackPtr, 'TernaryColonLine');
         }
 
-        // Find the token bounds of each part of the ternary expression
-        $check = array(
-            'condition' => array($startPtr + 1, $stackPtr - 1),
-            'true value' => array($stackPtr + 1, $colonPtr - 1),
-            'false value' => array($colonPtr + 1, $endPtr - 1)
-        );
+        $this->_evaluate_portion($phpcsFile, 'condition', $startPtr + 1, $stackPtr - 1);
+        $this->_evaluate_portion($phpcsFile, 'true value', $stackPtr + 1, $colonPtr - 1);
+        $this->_evaluate_portion($phpcsFile, 'false value', $colonPtr + 1, $endPtr - 1);
+    }
 
-        // For each part (condition, true value, false value)...
-        foreach ($check as $part => $range) {
+    /**
+     * Verifies one operand of a ternary operation follows Kohana coding standards
+     *
+     * @param   PHP_CodeSniffer_Sniff   $file
+     * @param   string                  $name   Portion being evaluated. Used in error messages.
+     * @param   integer                 $start  Index of the first token in the portion
+     * @param   integer                 $end    Index of the last token in the portion
+     * @return  void
+     */
+    protected function _evaluate_portion(PHP_CodeSniffer_File $file, $name, $start, $end)
+    {
+        // Skip any whitespace or casts
+        $current = $file->findNext(array(
+            T_WHITESPACE,
+            T_ARRAY_CAST,
+            T_BOOL_CAST,
+            T_DOUBLE_CAST,
+            T_INT_CAST,
+            T_OBJECT_CAST,
+            T_STRING_CAST,
+            T_UNSET_CAST,
+        ), $start, $end, TRUE);
 
-            // Trim any surrounding whitespace
-            $range[0] = $phpcsFile->findNext(T_WHITESPACE, $range[0], null, true);
-            $range[1] = $phpcsFile->findPrevious(T_WHITESPACE, $range[1], null, true);
+        // Trim any trailing whitespace
+        $end = $file->findPrevious(T_WHITESPACE, $end, $current, TRUE);
 
-            // Check to see if this part is a simple or complex expression
-            $tokenPtr = $phpcsFile->findNext(T_WHITESPACE, $range[0], null, true);
-            switch ($tokens[$tokenPtr]['type']) {
+        $tokens = $file->getTokens();
 
-                // If the expression is parenthesized, ensure it's not simple
-                case 'T_OPEN_PARENTHESIS':
-                    $nextPtr = $phpcsFile->findNext(array(T_WHITESPACE, T_VARIABLE), $tokenPtr + 1, null, true);
-                    if ($tokens[$nextPtr]['type'] == 'T_CLOSE_PARENTHESIS') {
-                        $error = 'Standalone variables should not be parenthesized when used as ternary values'; 
-                        $phpcsFile->addError($error, $stackPtr);
-                        continue 2;
+        if ($tokens[$current]['code'] === T_OPEN_PARENTHESIS)
+        {
+            // Skip any variables or whitespace
+            $next = $file->findNext(array(T_VARIABLE, T_WHITESPACE), $current + 1, NULL, TRUE);
+
+            if ($tokens[$next]['code'] === T_CLOSE_PARENTHESIS)
+            {
+                $error = 'A single variable should not have parenthesis in the '.$name.' portion of ternary operations';
+                $file->addError($error, $current, 'TernaryParenthesizedVariable');
+            }
+        }
+        else
+        {
+            $next = $file->findNext(T_WHITESPACE, $current + 1, $end, TRUE);
+
+            if ($tokens[$current]['code'] === T_STRING AND $tokens[$next]['code'] === T_DOUBLE_COLON)
+            {
+                // Static access
+                $current = $file->findNext(T_WHITESPACE, $next + 1, $end, TRUE);
+            }
+
+            if ($tokens[$current]['code'] === T_VARIABLE)
+            {
+                while ($next = $file->findNext(T_WHITESPACE, $current + 1, $end, TRUE))
+                {
+                    if ($tokens[$next]['code'] === T_OPEN_SQUARE_BRACKET
+                        OR $tokens[$next]['code'] === T_OPEN_CURLY_BRACKET)
+                    {
+                        // Array or String access
+                        $current = $tokens[$next]['bracket_closer'];
                     }
-                    break;
-
-                // If the expression is an array, ignore it
-                case 'T_ARRAY':
-                    break;
-
-                // Allow casts to be outside of brackets
-                case 'T_STRING_CAST':
-                case 'T_ARRAY_CAST':
-                case 'T_DOUBLE_CAST':
-                case 'T_INT_CAST':
-                case 'T_OBJECT_CAST':
-                case 'T_UNSET_CAST':
-                case 'T_BOOL_CAST':
-                    break;
-
-                // If the expression is a variable, function call, or array/string access, skip past it and continue 
-                case 'T_VARIABLE':
-                case 'T_STRING':
-                case 'T_ISSET':
-                case 'T_EMPTY':
-                    $nextPtr = $phpcsFile->findNext(T_WHITESPACE, $tokenPtr + 1, null, true);
-                    switch ($tokens[$nextPtr]['type']) {
-                        case 'T_OPEN_PARENTHESIS':
-                            $tokenPtr = $tokens[$nextPtr]['parenthesis_closer'];
-                            break;
-                        case 'T_OPEN_CURLY_BRACKET':
-                            $tokenPtr = $phpcsFile->findNext(T_CLOSE_CURLY_BRACKET, $nextPtr + 1);
-                            break;
-                        case 'T_OPEN_SQUARE_BRACKET':
-                            $tokenPtr = $phpcsFile->findNext(T_CLOSE_SQUARE_BRACKET, $nextPtr + 1);
-                            break;
+                    elseif ($tokens[$next]['code'] === T_OBJECT_OPERATOR
+                        OR $tokens[$next]['code'] === T_STRING
+                        OR $tokens[$next]['code'] === T_VARIABLE)
+                    {
+                        // Object access
+                        $current = $next;
                     }
-
-                // Break if the expression is simple (constant or function call) 
-                case 'T_CONSTANT_ENCAPSED_STRING':
-                case 'T_DNUMBER':
-                case 'T_LNUMBER':
-                case 'T_MINUS': // Negative numbers
-                    $nextPtr = $phpcsFile->findNext(T_WHITESPACE, $tokenPtr + 1, null, true);
-                    if ($nextPtr >= $range[1]) {
+                    elseif ($tokens[$next]['code'] === T_OPEN_PARENTHESIS)
+                    {
+                        // Call
+                        $current = $tokens[$next]['parenthesis_closer'];
+                    }
+                    else
+                    {
+                        $error = 'Comparisons and operations must be in parentheses in the '.$name.' portion of ternary operations';
+                        $file->addError($error, $current, 'TernaryParenthesized');
                         break;
                     }
+                }
+            }
+            else
+            {
+                if ($tokens[$current]['code'] === T_STRING
+                    OR $tokens[$current]['code'] === T_EMPTY
+                    OR $tokens[$current]['code'] === T_ISSET)
+                {
+                    // Function call or constant
 
-                // Expression must be complex and not parenthesized
-                default:
-                    $error = 'All comparisons and operations in ternary ' . $part . 's must be done inside of a parentheses group';
-                    $phpcsFile->addError($error, $stackPtr);
-                    break;
+                    // Skip to parenthesis
+                    $current = $file->findNext(T_WHITESPACE, $current + 1, $end, TRUE);
+
+                    if ($tokens[$current]['code'] === T_OPEN_PARENTHESIS)
+                    {
+                        $current = $tokens[$current]['parenthesis_closer'];
+                    }
+                }
+                elseif ($tokens[$current]['code'] === T_MINUS)
+                {
+                    // Negation
+
+                    // Skip to negated value
+                    $current = $file->findNext(T_WHITESPACE, $current + 1, $end, TRUE);
+                }
+
+                if ($current AND $current < $end)
+                {
+                    // The current position is NOT the end. Some other comparison, operation, etc must be happening.
+                    $error = 'Comparisons and operations must be in parentheses in the '.$name.' portion of ternary operations';
+                    $file->addError($error, $current, 'TernaryParenthesized');
+                }
+            }
+        }
+    }
+
+    /**
+     * Find the index of the next token of a certain type in a particular parentheses group
+     *
+     * @param   integer $type           Token type to find
+     * @param   array   $tokens         Tokens to search
+     * @param   integer $start          Index from which to begin
+     * @param   integer $end            Index at which to abort
+     * @param   integer $parenthesis    Index of the closing parenthesis or NULL
+     * @return  integer|FALSE   Index of the next token or FALSE
+     */
+    protected function _find_next($type, $tokens, $start, $end, $parenthesis)
+    {
+        if ($parenthesis === NULL)
+        {
+            for ($i = $start; $i < $end; ++$i)
+            {
+                if ($tokens[$i]['code'] === $type AND empty($tokens[$i]['nested_parenthesis']))
+                    return $i;
+            }
+        }
+        else
+        {
+            for ($i = $start; $i < $end; ++$i)
+            {
+                if ($tokens[$i]['code'] === $type AND ! empty($tokens[$i]['nested_parenthesis']) AND $parenthesis === end($tokens[$i]['nested_parenthesis']))
+                    return $i;
+            }
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * Find the index of the previous token of a certain type in a particular parentheses group
+     *
+     * @param   integer $type           Token type to find
+     * @param   array   $tokens         Tokens to search
+     * @param   integer $start          Index from which to begin
+     * @param   integer $end            Index at which to abort
+     * @param   integer $parenthesis    Index of the opening parenthesis or NULL
+     * @return  integer|FALSE   Index of the next token or FALSE
+     */
+    protected function _find_previous($type, $tokens, $start, $end, $parenthesis)
+    {
+        if ($parenthesis === NULL)
+        {
+            for ($i = $start; $i >= $end; --$i)
+            {
+                if ($tokens[$i]['code'] === $type AND empty($tokens[$i]['nested_parenthesis']))
+                    return $i;
+            }
+        }
+        else
+        {
+            for ($i = $start; $i >= $end; --$i)
+            {
+                if ($tokens[$i]['code'] === $type AND ! empty($tokens[$i]['nested_parenthesis']))
+                {
+                    end($tokens[$i]['nested_parenthesis']);
+
+                    if ($parenthesis === key($tokens[$i]['nested_parenthesis']))
+                        return $i;
+                }
             }
         }
     }
 }
-
-?>
