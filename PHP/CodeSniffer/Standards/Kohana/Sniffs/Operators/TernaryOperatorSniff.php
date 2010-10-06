@@ -68,7 +68,7 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
             );
 
             $startPtr = $phpcsFile->findPrevious($allowed, $stackPtr - 1, NULL, FALSE, NULL, TRUE);
-            $endPtr = $phpcsFile->findNext(T_SEMICOLON, $stackPtr + 1);
+            $endPtr = $phpcsFile->findNext(array(T_CLOSE_TAG, T_SEMICOLON), $stackPtr + 1);
 
             if ($startPtr === FALSE)
             {
