@@ -195,6 +195,12 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
             }
             else
             {
+                if ($tokens[$current]['code'] === T_NEW)
+                {
+                    // Skip to class
+                    $current = $file->findNext(T_WHITESPACE, $current + 1, $end, TRUE);
+                }
+
                 if ($tokens[$current]['code'] === T_STRING
                     OR $tokens[$current]['code'] === T_EMPTY
                     OR $tokens[$current]['code'] === T_ISSET)
