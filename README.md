@@ -13,6 +13,8 @@ These tests require [PHP Codesniffer](http://pear.php.net/PHP_CodeSniffer)
 
 If you want the standard to be available system wide you can symlink them into the code sniffer dir like so:
 
+	git clone https://github.com/kohana/coding-standards.git kohana-coding-standards
+	cd kohana-coding-standards
 	sudo ln -sfn `pwd`/PHP/CodeSniffer/Standards/Kohana `pear config-get php_dir`/PHP/CodeSniffer/Standards/Kohana 
 	sudo ln -sfn `pwd`/test/PHP_CodeSniffer/CodeSniffer/Standards/Kohana `pear config-get test_dir`/PHP_CodeSniffer/CodeSniffer/Standards/Kohana
 
