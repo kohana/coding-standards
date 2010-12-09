@@ -64,13 +64,16 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
                 T_PLUS_EQUAL,
                 T_SL_EQUAL,
                 T_SR_EQUAL,
-                T_XOR_EQUAL
+                T_XOR_EQUAL,
+
+                // To detect end of previous statement
+                T_SEMICOLON,
             );
 
-            $startPtr = $phpcsFile->findPrevious($allowed, $stackPtr - 1, NULL, FALSE, NULL, TRUE);
+            $startPtr = $this->_find_previous($allowed, $tokens, $stackPtr - 1, 0, NULL);
             $endPtr = $phpcsFile->findNext(array(T_CLOSE_TAG, T_SEMICOLON), $stackPtr + 1);
 
-            if ($startPtr === FALSE)
+            if ($tokens[$startPtr]['code'] === T_SEMICOLON)
             {
                 $error = 'Ternary operation must occur within assignment, echo or return statement';
                 $phpcsFile->addError($error, $stackPtr, 'TernaryStart');
