@@ -202,10 +202,11 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
                 }
 
                 if ($tokens[$current]['code'] === T_STRING
+                    OR $tokens[$current]['code'] === T_ARRAY
                     OR $tokens[$current]['code'] === T_EMPTY
                     OR $tokens[$current]['code'] === T_ISSET)
                 {
-                    // Function call or constant
+                    // Constant, function call or array
 
                     // Skip to parenthesis
                     $current = $file->findNext(T_WHITESPACE, $current + 1, $end, TRUE);
