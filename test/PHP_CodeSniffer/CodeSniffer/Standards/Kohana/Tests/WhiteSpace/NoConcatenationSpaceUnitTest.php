@@ -39,7 +39,10 @@ class Kohana_Tests_WhiteSpace_NoConcatenationSpaceUnitTest extends AbstractSniff
     {
         return array(
             3 => 2,
-            4 => 2
+            4 => 2,
+            8 => 1,
+            11 => 1,
+            14 => 1,
         );
     }
 

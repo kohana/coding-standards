@@ -7,6 +7,7 @@
  * @category  PHP
  * @package   PHP_CodeSniffer
  * @author    Matthew Turland <matt@ishouldbecoding.com>
+ * @author    Chris Bandy <bandy.chris@gmail.com>
  * @license   http://matrix.squiz.net/developer/tools/php_cs/licence BSD Licence
  * @version   CVS: $Id$
  * @link      http://pear.php.net/package/PHP_CodeSniffer
@@ -19,6 +20,7 @@
  * @category  PHP
  * @package   PHP_CodeSniffer
  * @author    Matthew Turland <matt@ishouldbecoding.com>
+ * @author    Chris Bandy <bandy.chris@gmail.com>
  * @license   http://matrix.squiz.net/developer/tools/php_cs/licence BSD Licence
  * @version   Release: @release_version@
  * @link      http://pear.php.net/package/PHP_CodeSniffer
@@ -49,11 +51,27 @@ class Kohana_Sniffs_WhiteSpace_NoConcatenationSpaceSniff implements PHP_CodeSnif
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
-        
-        if ($tokens[$stackPtr - 1]['type'] == 'T_WHITESPACE'
-            || $tokens[$stackPtr + 1]['type'] == 'T_WHITESPACE') {
-            $error = 'No space is allowed around concatenation operators';
-            $phpcsFile->addError($error, $stackPtr);
+
+        if ($tokens[$stackPtr + 1]['code'] === T_WHITESPACE)
+        {
+            $phpcsFile->addError('No space is allowed after concatenation operators', $stackPtr);
+        }
+
+        // Find the previous token in this statement that is not whitespace
+        $prevPtr = $phpcsFile->findPrevious(T_WHITESPACE, $stackPtr - 1, 0, TRUE, NULL, TRUE);
+
+        if ($prevPtr !== FALSE AND $prevPtr !== ($stackPtr - 1))
+        {
+            // Previous token is separated by whitespace
+
+            if ($tokens[$prevPtr]['line'] === $tokens[$stackPtr]['line'])
+            {
+                $phpcsFile->addError('No space is allowed before concatenation operators', $stackPtr);
+            }
+            elseif ($tokens[$prevPtr]['line'] !== ($tokens[$stackPtr]['line'] - 1))
+            {
+                $phpcsFile->addError('No blank lines are allowed before concatenation operators', $stackPtr);
+            }
         }
     }
 }
