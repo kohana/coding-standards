@@ -23,3 +23,12 @@ switch(TRUE) {
 	default:
 		return 'pie';
 }
+
+switch(TRUE) 
+{
+
+	case 'something':
+		echo 'hahaha';
+
+		break;
+}

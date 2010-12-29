@@ -113,6 +113,9 @@ class Kohana_Sniffs_ControlStructures_SwitchSniff implements PHP_CodeSniffer_Sni
             if ($tokens[$tokenPtr]['line'] == $tokens[$tokenPtr - 1]['line'] + 1
                 && substr($tokens[$tokenPtr]['content'], 0, $tabCount) != $tabString) {
 
+                // Empty lines are exempt from the indentation rule
+                $empty_line = TRUE;
+
                 // We now need to have a look along the line and see if there're any case / default
                 // tags in case we're allowing conditions to drop through
                 for (
@@ -124,9 +127,18 @@ class Kohana_Sniffs_ControlStructures_SwitchSniff implements PHP_CodeSniffer_Sni
                     if(in_array($tokens[$localTokenPtr]['type'], array('T_CASE', 'T_DEFAULT'))) {
                         continue 2;
                     }
+
+                    if($tokens[$localTokenPtr]['type'] !== 'T_WHITESPACE')
+                    {
+                        $empty_line = FALSE;
+                    }
                 }
 
-                $phpcsFile->addError('Code inside case and default blocks should be indented', $tokenPtr);
+                // Empty lines are exempt from the indentation rules
+                if( ! $empty_line)
+                {
+                    $phpcsFile->addError('Code inside case and default blocks should be indented', $tokenPtr);
+                }
             }
         }
     }
