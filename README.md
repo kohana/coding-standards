@@ -3,7 +3,7 @@
 This package contains a set of coding standard tests for the [kohana](http://kohanaframework.org) PHP framework.  
 The original tests were written by [Matthew Turland](http://matthewturland.com), see his [github repo](http://github.com/elazar/phpcs-kohana) for more info.
 
-These tests are meant to a guide and are may not be 100% accurate.  If you find a bug please report it on the [kohana issue tracker](http://dev.kohanaframework.org).
+These tests are meant to be a guide and may not be 100% accurate.  If you find a bug please report it on the [kohana issue tracker](http://dev.kohanaframework.org).
 
 ## Requirements
 
