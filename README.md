@@ -36,7 +36,7 @@ Like all things code related, sniffs need to be tested!  To run the tests they n
 
 Then just run the tests like so:
 
-	phpunit --bootstrap=`pear config-get php_dir`/PHP/CodeSniffer.php `pear config-get test_dir`/PHP_CodeSniffer/Standards/AllSniffs.php
+	phpunit --bootstrap=`pear config-get php_dir`/PHP/CodeSniffer.php `pear config-get test_dir`/PHP_CodeSniffer/CodeSniffer/Standards/AllSniffs.php
 
 ### Known issues
 
