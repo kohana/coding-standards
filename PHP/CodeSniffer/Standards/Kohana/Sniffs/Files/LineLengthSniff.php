@@ -28,6 +28,5 @@ class Kohana_Sniffs_Files_LineLengthSniff extends Generic_Sniffs_Files_LineLengt
      */
     protected $absoluteLineLimit = 120;
 
-}//end class
-
+}
 ?>
