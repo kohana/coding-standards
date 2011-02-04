@@ -144,6 +144,7 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
         $end = $file->findPrevious(T_WHITESPACE, $end, $current, TRUE);
 
         $tokens = $file->getTokens();
+        $is_static_call = FALSE;
 
         if ($tokens[$current]['code'] === T_OPEN_PARENTHESIS)
         {
@@ -163,38 +164,12 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
             if ($tokens[$current]['code'] === T_STRING AND $tokens[$next]['code'] === T_DOUBLE_COLON)
             {
                 // Static access
-                $current = $file->findNext(T_WHITESPACE, $next + 1, $end, TRUE);
+                $current = $this->_find_next_invokation_or_access($current, $next, $tokens, $end, $name, $file);
             }
 
             if ($tokens[$current]['code'] === T_VARIABLE)
             {
-                while ($next = $file->findNext(T_WHITESPACE, $current + 1, $end, TRUE))
-                {
-                    if ($tokens[$next]['code'] === T_OPEN_SQUARE_BRACKET
-                        OR $tokens[$next]['code'] === T_OPEN_CURLY_BRACKET)
-                    {
-                        // Array or String access
-                        $current = $tokens[$next]['bracket_closer'];
-                    }
-                    elseif ($tokens[$next]['code'] === T_OBJECT_OPERATOR
-                        OR $tokens[$next]['code'] === T_STRING
-                        OR $tokens[$next]['code'] === T_VARIABLE)
-                    {
-                        // Object access
-                        $current = $next;
-                    }
-                    elseif ($tokens[$next]['code'] === T_OPEN_PARENTHESIS)
-                    {
-                        // Call
-                        $current = $tokens[$next]['parenthesis_closer'];
-                    }
-                    else
-                    {
-                        $error = 'Comparisons and operations must be in parentheses in the '.$name.' portion of ternary operations';
-                        $file->addError($error, $current, 'TernaryParenthesized');
-                        break;
-                    }
-                }
+                $current = $this->_find_next_invokation_or_access($current, $next, $tokens, $end, $name, $file);
             }
             else
             {
@@ -235,6 +210,55 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
                 }
             }
         }
+    }
+
+    /**
+     * Find the next invokation or access of an object's or static class' members.
+     *
+     * @param integer The current position in the token stack
+     * @param integer The next token position
+     * @param array   Array of file's tokens
+     * @param integer Pointer to token at end of section
+     * @param string  Section name (i.e. condition or value)
+     * @param PHP_CodeSniffer_File The file we're examining
+     * @return integer The position of the last token in the call (i.e. last non-whitespace token)
+     */
+    protected function _find_next_invokation_or_access($current, $next, $tokens, $end, $name, PHP_CodeSniffer_File $file)
+    {
+        while ($next = $file->findNext(T_WHITESPACE, $current + 1, $end, TRUE))
+        {
+            if ($tokens[$next]['code'] === T_OPEN_SQUARE_BRACKET
+                OR $tokens[$next]['code'] === T_OPEN_CURLY_BRACKET)
+            {
+                // Array or String access
+                $current = $tokens[$next]['bracket_closer'];
+            }
+            elseif ($tokens[$next]['code'] === T_OBJECT_OPERATOR
+                OR $tokens[$next]['code'] === T_STRING
+                OR $tokens[$next]['code'] === T_VARIABLE)
+            {
+                // Object access
+                $current = $next + 1;
+            }
+            elseif ($tokens[$next]['code'] === T_OPEN_PARENTHESIS)
+            {
+                // Call
+                $current = $tokens[$next]['parenthesis_closer'];
+            }
+            elseif ($tokens[$next]['code'] === T_DOUBLE_COLON)
+            {
+                $current = $next + 1;
+            }
+            else
+            {
+                $error = 'Comparisons and operations must be in parentheses in the '.$name.' portion of ternary operations';
+                $file->addError($error, $current, 'TernaryParenthesized');
+                break;
+            }
+
+        }
+
+        return $current;
     }
 
     /**

@@ -20,3 +20,8 @@ echo MyClass::$property ? MyClass::CONSTANT : MyClass::method();
 return isset($this->$key) ? $this->$key : NULL;
 array('a' => $foo ? $bar : $baz);
 array('a', 'b' => $foo ? $bar : $baz);
+$foo = Auth::instance()->logged_in() ? 'yay' : 'nay';
+$foo = TRUE ? Auth::instance()->username() : Auth::instance()->user()->guest;
+$var = Auth::instance()->logged_in()
+	? Auth::instance()->get_user()->profile->default_language
+	: $lol;
