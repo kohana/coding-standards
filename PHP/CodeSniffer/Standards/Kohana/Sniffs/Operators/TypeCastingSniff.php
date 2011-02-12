@@ -59,10 +59,12 @@ class Kohana_Sniffs_Operators_TypeCastingSniff implements PHP_CodeSniffer_Sniff
         $after = $tokens[$stackPtr + 1];
 
         if ($before['type'] != 'T_WHITESPACE'
-            || $before['content'] != ' '
+            || ($before['content'] != ' '
+                AND $tokens[$stackPtr]['line'] !== $tokens[$stackPtr - 2]['line'] + 1 )
             || $after['type'] != 'T_WHITESPACE'
-            || $after['content'] != ' ') {
-            $error = 'Typecast operators must have a space on either side';
+            || $after['content'] != ' ')
+        {
+            $error = 'Typecast operators must be first on the line or have a space on either side';
             $phpcsFile->addError($error, $stackPtr);
         }
 
