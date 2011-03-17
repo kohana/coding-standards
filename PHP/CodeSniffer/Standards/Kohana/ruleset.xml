@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset name="Kohana">
+	<description>The Kohana coding standard.</description>
+
+	<!-- Include some specific generic sniffs -->
+	<rule ref="Generic.Functions.OpeningFunctionBraceBsdAllman"/>
+	<rule ref="Generic.NamingConventions.UpperCaseConstantName"/>
+</ruleset>
