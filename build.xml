@@ -32,7 +32,7 @@
 				<element>
 					<element key="handle" value="kohana-develoepers"/>
 					<element key="name" value="Kohana Developers"/>
-					<element key="email" value="developers@kohanaphp.com"/>
+					<element key="email" value="developers@kohanaframework.org"/>
 					<element key="role" value="lead"/>
 				</element>
 			</mapping>
