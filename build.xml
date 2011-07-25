@@ -36,6 +36,13 @@
 					<element key="role" value="lead"/>
 				</element>
 			</mapping>
+			<mapping name="deps">
+				<element>
+					<element key="channel" value="pear" />
+					<element key="name" value="PHP_CodeSniffer" />
+					<element key="version" value="1.2.2" />
+				</element>
+			</mapping>
 			<fileset dir="${project.basedir}">
 				<include name="PHP/**/*" />
 			</fileset>
