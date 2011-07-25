@@ -37,7 +37,7 @@
 				</element>
 			</mapping>
 			<fileset dir="${project.basedir}">
-				<include name="PHP/**/*.php" />
+				<include name="PHP/**/*" />
 			</fileset>
 		</pearpkg2>
 
