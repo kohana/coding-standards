@@ -42,9 +42,14 @@
 		</pearpkg2>
 
 		<echo>Creating tgz package...</echo>
+		<mkdir dir="PHP_CodeSniffer_Standards_Kohana-${version}" />
+		<move file="PHP" tofile="PHP_CodeSniffer_Standards_Kohana-${version}/PHP" />
 		<tar compression="gzip" destFile="PHP_CodeSniffer_Standards_Kohana-${version}.tgz">
 			<fileset dir=".">
-				<exclude name="*.tgz"/>
+				<include name="PHP_CodeSniffer_Standards_Kohana-${version}"/>
+				<include name="package.xml"/>
+				<include name="*.md" />
+				<exclude name=".git"/>
 			</fileset>
 		</tar>
 	</target>
