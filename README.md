@@ -9,7 +9,14 @@ These tests are meant to be a guide and may not be 100% accurate.  If you find a
 
 These tests require [PHP Codesniffer](http://pear.php.net/PHP_CodeSniffer)
 
-## Installation
+## Installation - PEAR (recommended)
+
+Standard PEAR install:
+
+	sudo pear channel-discover pear.kohanaframework.org
+	sudo pear install kohana/PHP_CodeSniffer_Standards_Kohana
+
+## Installation - If you intened to make changes to the sniff's
 
 If you want the standard to be available system wide you can symlink them into the code sniffer dir like so:
 
