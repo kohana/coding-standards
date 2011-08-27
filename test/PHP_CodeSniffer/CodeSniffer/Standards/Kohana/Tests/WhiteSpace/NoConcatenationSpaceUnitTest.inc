@@ -12,3 +12,5 @@ $test = 'extra'
 $test = 'extra'
 
 	.'indentation';
+
+'{'.(int) $digits.'}'
