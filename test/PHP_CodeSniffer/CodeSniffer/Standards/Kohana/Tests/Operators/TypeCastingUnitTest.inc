@@ -7,4 +7,5 @@ $foo = (integer) $bar;
 $foo = (boolean) $bar;
 	(int) $indented;
 
-'{'.(int) $digits.'}'
+'{'.(int) $digits.'}';
+'{'.(int)$digits.'}';

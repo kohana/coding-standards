@@ -40,7 +40,8 @@ class Kohana_Tests_Operators_TypeCastingUnitTest extends AbstractSniffUnitTest
         return array(
             3 => 1,
             6 => 1,
-            7 => 1
+            7 => 1,
+            11 => 1,
         );
     }
 

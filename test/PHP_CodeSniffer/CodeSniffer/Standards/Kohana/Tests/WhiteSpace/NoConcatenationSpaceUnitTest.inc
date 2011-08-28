@@ -13,4 +13,4 @@ $test = 'extra'
 
 	.'indentation';
 
-'{'.(int) $digits.'}'
+'{'.(int) $digits.'}';
