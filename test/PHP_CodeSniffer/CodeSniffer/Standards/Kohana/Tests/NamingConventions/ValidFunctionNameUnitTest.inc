@@ -169,4 +169,13 @@ function my_package_function() {}
 function Package_() {}
 function Package() {}
 
+function () {}
+
+class Closure_Test {
+    function closure()
+    {
+        return function () {};
+    }
+}
+
 ?>

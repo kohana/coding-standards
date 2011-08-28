@@ -86,6 +86,10 @@ class Kohana_Sniffs_NamingConventions_ValidFunctionNameSniff extends PHP_CodeSni
         $className  = $phpcsFile->getDeclarationName($currScope);
         $methodName = $phpcsFile->getDeclarationName($stackPtr);
 
+        // Ignore anonymous functions used within a class
+        if ( ! $methodName)
+            return;
+
         // Ignore magic methods 
         if (substr($methodName, 0, 2) == '__') {
             $magicPart = substr($methodName, 2);
@@ -118,6 +122,10 @@ class Kohana_Sniffs_NamingConventions_ValidFunctionNameSniff extends PHP_CodeSni
     protected function processTokenOutsideScope(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {
         $functionName = $phpcsFile->getDeclarationName($stackPtr);
+
+        // Ignore anonymous functions
+        if ( ! $functionName)
+            return;
 
         // Ignore magic functions 
         if (substr($functionName, 0, 2) == '__') {
