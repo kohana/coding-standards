@@ -50,6 +50,12 @@ class Kohana_Sniffs_Commenting_OneLineCommentSniff implements PHP_CodeSniffer_Sn
         $tokens = $phpcsFile->getTokens();
         $content = $tokens[$stackPtr]['content'];
 
+        // Allow PHPUnit Code Coverage Ignore tags
+        if (preg_match('_^//@codeCoverageIgnore(Start|End)_', $content))
+        {
+            return;
+        }
+
         if (preg_match('/^\s*(?:\/\/[^ ]|#)/', $content)) {
             $error = 'Single-line comments must begin with "// " (e.g. // My comment)';
             $phpcsFile->addError($error, $stackPtr);
