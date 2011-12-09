@@ -54,6 +54,7 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
                 T_EQUAL,
                 T_RETURN,
                 T_ECHO,
+                T_OPEN_TAG_WITH_ECHO,
                 T_AND_EQUAL,
                 T_CONCAT_EQUAL,
                 T_DIV_EQUAL,
