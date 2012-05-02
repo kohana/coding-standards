@@ -40,14 +40,11 @@ class Kohana_Sniffs_NamingConventions_UpperCaseConstantNameSniff extends Generic
     public function register()
     {
         return array(
-		T_STRING,
-		T_TRUE,
-		T_FALSE,
-		T_NULL,
-		T_LOGICAL_AND,
-		T_LOGICAL_OR,
-		T_LOGICAL_XOR
-	);
+            T_STRING,
+            T_TRUE,
+            T_FALSE,
+            T_NULL,
+        );
 
     }//end register()
 
