@@ -53,7 +53,7 @@ class Kohana_Sniffs_Functions_RegularExpressionSniff implements PHP_CodeSniffer_
         // Is this a function call? 
         $prevPtr = $phpcsFile->findPrevious(T_WHITESPACE, $stackPtr - 1, null, true);
         $nextPtr = $phpcsFile->findNext(T_WHITESPACE, $stackPtr + 1, null, true);
-        if ($tokens[$prevPtr]['type'] != 'T_FUNCTION'
+        if ( ($tokens[$prevPtr]['type'] != 'T_FUNCTION' && $tokens[$prevPtr]['type'] != 'T_DOUBLE_COLON')
             && $tokens[$nextPtr]['type'] == 'T_OPEN_PARENTHESIS') {
 
             // Is this a POSIX function?
