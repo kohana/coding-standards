@@ -57,12 +57,18 @@ class Kohana_Sniffs_ControlStructures_SingleLineIfSniff implements PHP_CodeSniff
         // Find the first non-whitespace token following the if condition
         $tokenPtr = $phpcsFile->findNext(T_WHITESPACE, $tokenPtr + 1, null, true);
 
-        switch ($tokens[$tokenPtr]['type']) {
+        self::check_if_statement($phpcsFile, $stackPtr, $tokens, $tokenPtr);
+    }
+	
+	private static function check_if_statement(PHP_CodeSniffer_File $phpcsFile, $stackPtr, $tokens, $tokenPtr)
+	{
+	
+		switch ($tokens[$tokenPtr]['type']) {
             // Ignore branches that are not single-line
             case 'T_COLON':
             case 'T_OPEN_CURLY_BRACKET':
-
-            // Ignore branches that break normal execution
+			
+			// Ignore branches that break normal execution
             case 'T_RETURN':
             case 'T_CONTINUE':
             case 'T_BREAK':
@@ -70,12 +76,18 @@ class Kohana_Sniffs_ControlStructures_SingleLineIfSniff implements PHP_CodeSniff
             case 'T_EXIT':
                 return;
 
-            // Generate an error for all other branches
+            // Ignore comments only after checking the next token
+			case 'T_COMMENT':
+				$tokenPtr2 = $phpcsFile->findNext(T_WHITESPACE, $tokenPtr + 1, null, true);
+				self::check_if_statement($phpcsFile, $stackPtr, $tokens, $tokenPtr2);
+				return;
+			
+			// Generate an error for all other branches
             default:
                 $error = 'Single-line if statements should only be used when breaking normal execution';
                 $phpcsFile->addError($error, $stackPtr);
         }
-    }
+	}
 }
 
 ?>
