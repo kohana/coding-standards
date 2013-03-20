@@ -16,6 +16,19 @@ Standard PEAR install:
 	sudo pear channel-discover pear.kohanaframework.org
 	sudo pear install kohana/PHP_CodeSniffer_Standards_Kohana
 
+## Installation - Composer
+
+Add the package to the development dependencies in your project's composer.json
+
+    {
+        "require-dev": {
+            "kohana/coding-standards": "*",
+        }
+    }
+
+Run `composer --dev update` to update your composer.lock file and install the package. The sniffs will be installed in
+`vendor/kohana/coding-standards` in your project root directory.
+
 ## Installation - If you intened to make changes to the sniff's
 
 If you want the standard to be available system wide you can symlink them into the code sniffer dir like so:
@@ -34,6 +47,18 @@ You can reference the standard like so:
 Or, if you don't want to install it system wide you can simply reference the local copy
 
 	phpcs --standard=path/to/coding-standard/PHP/CodeSniffer/Standards/Kohana system/classes/kohana
+
+If you installed with composer, reference the standard from your vendor directory:
+
+    phpcs --standard=vendor/kohana/coding-standards/PHP/CodeSniffer/Standards/Kohana
+
+## Customising your project standard
+
+It is also possible to extend the rules in use for your project, or to include some but not all of the Kohana standards
+(for example, if you are working on something that is not intended as a kohana module). You do this by adding a
+`coding_standard.xml` to your project root which specifies which rules to include and customises any variables. See the
+[PHP_CodeSniffer docs](https://pear.php.net/manual/en/package.php.php-codesniffer.annotated-ruleset.php) for more
+details.
 
 ## Testing
 
