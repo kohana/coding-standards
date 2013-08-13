@@ -1,6 +1,6 @@
 <?php
 /**
- * CodeIgniter_Sniffs_WhiteSpace_DisallowSpaceIndentSniff.
+ * Kohana_Sniffs_WhiteSpace_DisallowSpaceIndentSniff.
  *
  * PHP version 5
  *
@@ -8,13 +8,13 @@
  * @package   PHP_CodeSniffer
  * @author    Thomas Ernest <thomas.ernest@gmail.com>
  * @copyright 2011 Thomas ERNEST
- * @license   http://thomas.ernest.fr/developement/php_cs/licence GNU General Public License
+ * @license   https://gnu.org/licenses/gpl.html GNU General Public License
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  * @link      https://github.com/thomas-ernest/CodeIgniter-for-PHP_CodeSniffer/blob/master/src/Sniffs/WhiteSpace/DisallowSpaceIndentSniff.php
  */
 
 /**
- * CodeIgniter_Sniffs_WhiteSpace_DisallowSpaceIndentSniff.
+ * Kohana_Sniffs_WhiteSpace_DisallowSpaceIndentSniff.
  *
  * Ensures the use of tabs for indentation.
  *
@@ -22,8 +22,9 @@
  * @package   PHP_CodeSniffer
  * @author    Thomas Ernest <thomas.ernest@gmail.com>
  * @copyright 2011 Thomas ERNEST
- * @license   http://thomas.ernest.fr/developement/php_cs/licence GNU General Public License
+ * @license   https://gnu.org/licenses/gpl.html GNU General Public License
  * @link      http://pear.php.net/package/PHP_CodeSniffer
+ * @link      http://kohanaframework.org/3.3/guide/kohana/conventions#indentation
  */
 class Kohana_Sniffs_WhiteSpace_DisallowSpaceIndentSniff implements PHP_CodeSniffer_Sniff
 {
