@@ -7,14 +7,7 @@ These tests are meant to be a guide and may not be 100% accurate.  If you find a
 
 ## Requirements
 
-These tests require [PHP Codesniffer](http://pear.php.net/PHP_CodeSniffer)
-
-## Installation - PEAR (recommended)
-
-Standard PEAR install:
-
-	sudo pear channel-discover pear.kohanaframework.org
-	sudo pear install kohana/PHP_CodeSniffer_Standards_Kohana
+These tests are built for usage with [PHP Codesniffer](https://github.com/squizlabs/PHP_CodeSniffer).
 
 ## Installation - Composer
 
@@ -27,30 +20,30 @@ Add the package to the development dependencies in your project's composer.json
     }
 
 Run `composer --dev update` to update your composer.lock file and install the package. The sniffs will be installed in
-`vendor/kohana/coding-standards` in your project root directory.
+`vendor/kohana/coding-standards` in your project root directory and the `phpcs` command will be installed to `bin/phpcs`.
 
-## Installation - If you intened to make changes to the sniff's
+## Installation - Manually or with PEAR
 
 If you want the standard to be available system wide you can symlink them into the code sniffer dir like so:
 
 	git clone https://github.com/kohana/coding-standards.git kohana-coding-standards
 	cd kohana-coding-standards
-	sudo ln -sfn `pwd`/PHP/CodeSniffer/Standards/Kohana `pear config-get php_dir`/PHP/CodeSniffer/Standards/Kohana 
+	sudo ln -sfn `pwd`/Kohana `pear config-get php_dir`/PHP/CodeSniffer/Standards/Kohana 
 	sudo ln -sfn `pwd`/test/PHP_CodeSniffer/CodeSniffer/Standards/Kohana `pear config-get test_dir`/PHP_CodeSniffer/CodeSniffer/Standards/Kohana
 
 ## Running
 
-You can reference the standard like so:
-
-	phpcs --standard=Kohana system/classes/kohana
-
-Or, if you don't want to install it system wide you can simply reference the local copy
-
-	phpcs --standard=path/to/coding-standard/PHP/CodeSniffer/Standards/Kohana system/classes/kohana
-
 If you installed with composer, reference the standard from your vendor directory:
 
-    phpcs --standard=vendor/kohana/coding-standards/PHP/CodeSniffer/Standards/Kohana
+    bin/phpcs --standard=vendor/kohana/coding-standards/Kohana modules/
+
+Or, from a raw clone, you can simply reference the local copy:
+
+	phpcs --standard=path/to/coding-standards/Kohana kohana/core
+
+If installed globally (symlinked into PEAR), you can reference the standard like so:
+
+	phpcs --standard=Kohana application/
 
 ## Customising your project standard
 
