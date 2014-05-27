@@ -1,0 +1,18 @@
+{
+    "name":        "kohana/coding-standards",
+    "require": {
+    },
+    "type":        "library",
+    "description": "PHP_CodeSniffer rules for the Kohana Framework coding style",
+    "keywords":    ["kohana", "standards", "phpcs"],
+    "homepage":    "https://github.com/kohana/coding-standards",
+    "license":     "BSD-3-Clause",
+    "authors":     [
+        {
+            "name":     "Kohana Team",
+            "email":    "team@kohanaframework.org",
+            "homepage": "http://www.kohanaframework.org",
+            "role":     "Maintainer"
+        }
+    ]
+}
