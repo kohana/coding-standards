@@ -1,12 +1,15 @@
 {
     "name":        "kohana/coding-standards",
-    "require": {
-    },
     "type":        "library",
     "description": "PHP_CodeSniffer rules for the Kohana Framework coding style",
-    "keywords":    ["kohana", "standards", "phpcs"],
+    "keywords":    ["kohana", "code standard", "coding stanards", "code style", "standards", "phpcs"],
     "homepage":    "https://github.com/kohana/coding-standards",
     "license":     "BSD-3-Clause",
+    "support": {
+        "issues": "https://github.com/kohana/coding-standards/issues",
+        "wiki": "https://github.com/kohana/coding-standards/wiki",
+        "irc": "irc://irc.freenode.org/kohana"
+    },
     "authors":     [
         {
             "name":     "Kohana Team",
