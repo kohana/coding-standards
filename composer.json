@@ -17,5 +17,8 @@
             "homepage": "http://www.kohanaframework.org",
             "role":     "Maintainer"
         }
-    ]
+    ],
+    "require": {
+        "squizlabs/php_codesniffer": "1.*"
+    }
 }
