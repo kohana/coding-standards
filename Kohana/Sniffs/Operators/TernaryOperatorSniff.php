@@ -11,6 +11,11 @@
  * @license   http://matrix.squiz.net/developer/tools/php_cs/licence BSD Licence
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
+namespace Kohana\Sniffs\Operators;
+
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\Sniff;
+use const T_ARRAY;
 
 /**
  * Logs an error when a ternary operation is not in parentheses. Operands must also be in
@@ -23,7 +28,7 @@
  * @license   http://matrix.squiz.net/developer/tools/php_cs/licence BSD Licence
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
-class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sniff
+class TernaryOperatorSniff implements Sniff
 {
     /**
      * Returns an array of tokens this test wants to listen for.
@@ -40,16 +45,22 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile
      * @param int $stackPtr Position of the current token in the stack
      * @return void
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(\PHP_CodeSniffer\Files\File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 
         if (empty($tokens[$stackPtr]['nested_parenthesis']))
         {
+            // Skip short ternary such as: "$foo = $bar ?: true;".
+            if ($tokens[$stackPtr]['code'] === T_INLINE_THEN && $tokens[($stackPtr + 1)]['code'] === T_INLINE_ELSE)
+            {
+                return;
+            }
+
             $allowed = array(
                 T_EQUAL,
                 T_RETURN,
@@ -79,7 +90,7 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
                 $phpcsFile->addError($error, $stackPtr, 'TernaryStart');
             }
 
-            $colonPtr = $this->_find_next(T_COLON, $tokens, $stackPtr + 1, $endPtr, NULL);
+            $colonPtr = $phpcsFile->findNext([T_COLON, T_INLINE_ELSE], $startPtr);
         }
         else
         {
@@ -92,7 +103,7 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
                 $startPtr = $comma;
             }
 
-            $colonPtr = $this->_find_next(T_COLON, $tokens, $stackPtr + 1, $endPtr, $endPtr);
+            $colonPtr = $this->_find_next([T_COLON, T_INLINE_ELSE], $tokens, $stackPtr + 1, $endPtr, $endPtr);
 
             if ($comma = $this->_find_next(T_COMMA, $tokens, $colonPtr + 1, $endPtr, $endPtr))
             {
@@ -120,13 +131,13 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
     /**
      * Verifies one operand of a ternary operation follows Kohana coding standards
      *
-     * @param   PHP_CodeSniffer_Sniff   $file
+     * @param   Sniff   $file
      * @param   string                  $name   Portion being evaluated. Used in error messages.
      * @param   integer                 $start  Index of the first token in the portion
      * @param   integer                 $end    Index of the last token in the portion
      * @return  void
      */
-    protected function _evaluate_portion(PHP_CodeSniffer_File $file, $name, $start, $end)
+    protected function _evaluate_portion(File $file, $name, $start, $end)
     {
         // Skip any whitespace or casts
         $current = $file->findNext(array(
@@ -149,7 +160,7 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
         if ($tokens[$current]['code'] === T_OPEN_PARENTHESIS)
         {
             // Skip any variables or whitespace
-            $next = $file->findNext(array(T_VARIABLE, T_WHITESPACE), $current + 1, NULL, TRUE);
+            $next = $file->findNext(array(T_VARIABLE, T_WHITESPACE, T_ARRAY), $current + 1, NULL, TRUE);
 
             if ($tokens[$next]['code'] === T_CLOSE_PARENTHESIS)
             {
@@ -180,7 +191,7 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
                 }
 
                 if ($tokens[$current]['code'] === T_STRING
-                    OR $tokens[$current]['code'] === T_ARRAY
+                    // OR $tokens[$current]['code'] === T_ARRAY
                     OR $tokens[$current]['code'] === T_EMPTY
                     OR $tokens[$current]['code'] === T_ISSET)
                 {
@@ -206,6 +217,14 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
                 {
                     // The current position is NOT the end. Some other comparison, operation, etc must be happening.
                     $error = 'Comparisons and operations must be in parentheses in the '.$name.' portion of ternary operations';
+                    $fix = $file->addFixableError($error, $current, 'TernaryParenthesized');
+                    if ($fix === true) {
+                        $fix = ($tokens[$start]['content'] == ' ') ? $start+1 : $start;
+                        $file->fixer->addContentBefore($fix, '(');
+                        $file->fixer->addContent($end, ')');
+                    }
+
+
                     $file->addError($error, $current, 'TernaryParenthesized');
                 }
             }
@@ -220,10 +239,10 @@ class Kohana_Sniffs_Operators_TernaryOperatorSniff implements PHP_CodeSniffer_Sn
      * @param array   Array of file's tokens
      * @param integer Pointer to token at end of section
      * @param string  Section name (i.e. condition or value)
-     * @param PHP_CodeSniffer_File The file we're examining
+     * @param \PHP_CodeSniffer\Files\File The file we're examining
      * @return integer The position of the last token in the call (i.e. last non-whitespace token)
      */
-    protected function _find_next_invokation_or_access($current, $next, $tokens, $end, $name, PHP_CodeSniffer_File $file)
+    protected function _find_next_invokation_or_access($current, $next, $tokens, $end, $name, \PHP_CodeSniffer\Files\File $file)
     {
         while ($next = $file->findNext(T_WHITESPACE, $current + 1, $end, TRUE))
         {

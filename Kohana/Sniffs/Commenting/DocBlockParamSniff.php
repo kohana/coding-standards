@@ -1,5 +1,11 @@
 <?php
 
+namespace Kohana\Sniffs\Commenting;
+
+
+use PHP_CodeSniffer\Sniffs\Sniff;
+use PHP_CodeSniffer\Files\File;
+
 /**
  * This sniff issues a warning when a \@param tag lacks the parameter name.
  *
@@ -9,7 +15,7 @@
  * @copyright   (c) 2010 Kohana Team
  * @license     http://kohanaframework.org/license
  */
-class Kohana_Sniffs_Commenting_DocBlockParamSniff implements PHP_CodeSniffer_Sniff
+class DocBlockParamSniff implements Sniff
 {
     public function register()
     {
@@ -18,7 +24,7 @@ class Kohana_Sniffs_Commenting_DocBlockParamSniff implements PHP_CodeSniffer_Sni
         );
     }
 
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
         $content = $tokens[$stackPtr]['content'];
@@ -29,7 +35,7 @@ class Kohana_Sniffs_Commenting_DocBlockParamSniff implements PHP_CodeSniffer_Sni
             if ( ! preg_match('/^\S+\s+\$\S/', $matches[1]))
             {
                 // Second "word" (non-whitespace) does not start with $
-                $phpcsFile->addWarning('@param tag should have the parameter name', $stackPtr);
+                $phpcsFile->addWarning('@param tag should have the parameter name', $stackPtr, 'DocBlockParam');
             }
         }
     }

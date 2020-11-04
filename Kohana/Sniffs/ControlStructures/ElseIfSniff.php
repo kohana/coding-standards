@@ -1,4 +1,6 @@
 <?php
+namespace Kohana\Sniffs\ControlStructures;
+
 /**
  * Kohana_Sniffs_ControlStructures_ElseIfSniff.
  *
@@ -12,6 +14,8 @@
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
 
+use PHP_CodeSniffer\Sniffs\Sniff;
+
 /**
  * Throws errors if "else if" is used rather than "elseif."
  *
@@ -22,7 +26,7 @@
  * @version   Release: @release_version@
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
-class Kohana_Sniffs_ControlStructures_ElseIfSniff implements PHP_CodeSniffer_Sniff
+class ElseIfSniff implements Sniff
 {
     /**
      * Returns an array of tokens this test wants to listen for.
@@ -39,20 +43,20 @@ class Kohana_Sniffs_ControlStructures_ElseIfSniff implements PHP_CodeSniffer_Sni
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile All the tokens found in the 
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile All the tokens found in the
      *        document
      * @param int $stackPtr Position of the current token in the stack passed 
      *        in $tokens
      * @return void
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(\PHP_CodeSniffer\Files\File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
         $tokenPtr = $phpcsFile->findNext(T_WHITESPACE, $stackPtr + 1, null, true);
 
         if ($tokens[$tokenPtr]['type'] == 'T_IF') {
             $error = 'elseif should be used rather than else if';
-            $phpcsFile->addError($error, $stackPtr);
+            $phpcsFile->addError($error, $stackPtr, 'ElseIf');
         }
     }
 }

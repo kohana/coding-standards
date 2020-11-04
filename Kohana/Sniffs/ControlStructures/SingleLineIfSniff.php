@@ -11,6 +11,9 @@
  * @version   CVS: $Id$
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
+namespace Kohana\Sniffs\ControlStructures;
+
+use PHP_CodeSniffer\Sniffs\Sniff;
 
 /**
  * Throws errors if single-line if statements are used for anything that 
@@ -23,7 +26,7 @@
  * @version   Release: @release_version@
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
-class Kohana_Sniffs_ControlStructures_SingleLineIfSniff implements PHP_CodeSniffer_Sniff
+class SingleLineIfSniff implements Sniff
 {
     /**
      * Returns an array of tokens this test wants to listen for.
@@ -40,13 +43,13 @@ class Kohana_Sniffs_ControlStructures_SingleLineIfSniff implements PHP_CodeSniff
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile All the tokens found in the 
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile All the tokens found in the
      *        document
      * @param int $stackPtr Position of the current token in the stack passed 
      *        in $tokens
      * @return void
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(\PHP_CodeSniffer\Files\File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 
@@ -73,7 +76,7 @@ class Kohana_Sniffs_ControlStructures_SingleLineIfSniff implements PHP_CodeSniff
             // Generate an error for all other branches
             default:
                 $error = 'Single-line if statements should only be used when breaking normal execution';
-                $phpcsFile->addError($error, $stackPtr);
+                $phpcsFile->addError($error, $stackPtr, 'SingleLine');
         }
     }
 }

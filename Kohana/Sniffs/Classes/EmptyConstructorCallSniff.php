@@ -12,6 +12,11 @@
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
 
+namespace Kohana\Sniffs\Classes;
+
+use PHP_CodeSniffer\Sniffs\Sniff;
+use PHP_CodeSniffer\Files\File;
+
 /**
  * This sniff prohibits the use of parentheses for constructor calls that 
  * do not accept parameters.
@@ -23,7 +28,7 @@
  * @version   Release: @package_version@
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
-class Kohana_Sniffs_Classes_EmptyConstructorCallSniff implements PHP_CodeSniffer_Sniff
+class EmptyConstructorCallSniff implements Sniff
 {
     /**
      * Returns the token types that this sniff is interested in.
@@ -40,11 +45,11 @@ class Kohana_Sniffs_Classes_EmptyConstructorCallSniff implements PHP_CodeSniffer
     /**
      * Processes the tokens that this sniff is interested in.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile File where the token was found
+     * @param File $phpcsFile File where the token was found
      * @param int $stackPtr Position in the stack where the token was found
      * @return void
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, $stackPtr)
     {
         $open = $phpcsFile->findNext(
             T_OPEN_PARENTHESIS, 
@@ -57,10 +62,11 @@ class Kohana_Sniffs_Classes_EmptyConstructorCallSniff implements PHP_CodeSniffer
         
         if ($open !== false
             && $phpcsFile->getTokensAsString($open, 2) == '()') {
-            $phpcsFile->addError(
-                'Parentheses should not be used in calls to class constructors without parameters',
-                 $stackPtr
-            );
+            $fix = $phpcsFile->addFixableError('Parentheses should not be used in calls to class constructors without parameters', $stackPtr, 'EmptyConstructorCall');
+            if ($fix === true) {
+                $phpcsFile->fixer->replaceToken($open, '');
+                $phpcsFile->fixer->replaceToken($open+1, '');
+            }
         }
     }
 }

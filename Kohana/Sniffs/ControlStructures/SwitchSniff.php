@@ -11,6 +11,9 @@
  * @version   CVS: $Id$
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
+namespace Kohana\Sniffs\ControlStructures;
+
+use PHP_CodeSniffer\Sniffs\Sniff;
 
 /**
  * Throws errors if switch structures do not conform to the coding standard.
@@ -22,7 +25,7 @@
  * @version   Release: @release_version@
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
-class Kohana_Sniffs_ControlStructures_SwitchSniff implements PHP_CodeSniffer_Sniff
+class SwitchSniff implements Sniff
 {
     /**
      * Returns an array of tokens this test wants to listen for.
@@ -41,13 +44,13 @@ class Kohana_Sniffs_ControlStructures_SwitchSniff implements PHP_CodeSniffer_Sni
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile All the tokens found in the
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile All the tokens found in the
      *        document
      * @param int $stackPtr Position of the current token in the stack passed
      *        in $tokens
      * @return void
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(\PHP_CodeSniffer\Files\File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
         $line = $tokens[$stackPtr]['line'];
@@ -70,7 +73,7 @@ class Kohana_Sniffs_ControlStructures_SwitchSniff implements PHP_CodeSniffer_Sni
                 case 'T_BREAK':
                     if ($tokenPtr > $stackPtr) {
                         $error = 'Each case, break, and default should be on a separate line';
-                        $phpcsFile->addError($error, $stackPtr);
+                        $phpcsFile->addError($error, $stackPtr, 'Switch');
                     }
             }
         }
@@ -85,7 +88,7 @@ class Kohana_Sniffs_ControlStructures_SwitchSniff implements PHP_CodeSniffer_Sni
         // Account for typos using ; instead of : on case lines
         if ($tokens[$stackPtrScopeOpener]['type'] === 'T_SEMICOLON') {
             $error = 'Potential use of ; instead of : on a case line';
-            $phpcsFile->addWarning($error, $stackPtr);
+            $phpcsFile->addWarning($error, $stackPtr, 'Switch');
             return;
         }
 
@@ -128,7 +131,14 @@ class Kohana_Sniffs_ControlStructures_SwitchSniff implements PHP_CodeSniffer_Sni
                         continue 2;
                     }
 
-                    if($tokens[$localTokenPtr]['type'] !== 'T_WHITESPACE')
+                    if( ! in_array($tokens[$localTokenPtr]['type'], [
+                        'T_WHITESPACE',
+                        'T_DOC_COMMENT_OPEN_TAG',
+                        'T_DOC_COMMENT_WHITESPACE',
+                        'T_DOC_COMMENT_TAG',
+                        'T_DOC_COMMENT_STRING',
+                        'T_DOC_COMMENT_CLOSE_TAG'
+                    ]))
                     {
                         $empty_line = FALSE;
                     }
@@ -137,7 +147,7 @@ class Kohana_Sniffs_ControlStructures_SwitchSniff implements PHP_CodeSniffer_Sni
                 // Empty lines are exempt from the indentation rules
                 if( ! $empty_line)
                 {
-                    $phpcsFile->addError('Code inside case and default blocks should be indented', $tokenPtr);
+                    $phpcsFile->addError('Code inside case and default blocks should be indented', $tokenPtr, 'Switch');
                 }
             }
         }

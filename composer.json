@@ -1,9 +1,9 @@
 {
-    "name":        "kohana/coding-standards",
+    "name":        "pandaleague/kohana-coding-standards",
     "type":        "library",
     "description": "PHP_CodeSniffer rules for the Kohana Framework coding style",
     "keywords":    ["kohana", "code standard", "coding stanards", "code style", "standards", "phpcs"],
-    "homepage":    "https://github.com/kohana/coding-standards",
+    "homepage":    "https://github.com/pandaleague/kohana-coding-standards",
     "license":     "BSD-3-Clause",
     "support": {
         "issues": "https://github.com/kohana/coding-standards/issues",
@@ -19,6 +19,8 @@
         }
     ],
     "require": {
-        "squizlabs/php_codesniffer": "1.*"
+        "squizlabs/php_codesniffer": "^3"
+    },
+    "require-dev": {
     }
 }

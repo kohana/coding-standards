@@ -11,6 +11,8 @@
  * @version   CVS: $Id$
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
+namespace Kohana\Sniffs\Functions;
+use PHP_CodeSniffer\Sniffs\Sniff;
 
 /**
  * Throws errors if ternary expressions use parentheses improperly or exceed 
@@ -23,7 +25,7 @@
  * @version   Release: @release_version@
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
-class Kohana_Sniffs_Functions_RegularExpressionSniff implements PHP_CodeSniffer_Sniff
+class RegularExpressionSniff implements Sniff
 {
     /**
      * Returns an array of tokens this test wants to listen for.
@@ -40,13 +42,13 @@ class Kohana_Sniffs_Functions_RegularExpressionSniff implements PHP_CodeSniffer_
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile All the tokens found in the 
+     * @param \PHP_CodeSniffer $phpcsFile All the tokens found in the
      *        document
      * @param int $stackPtr Position of the current token in the stack passed 
      *        in $tokens
      * @return void
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(\PHP_CodeSniffer\Files\File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 

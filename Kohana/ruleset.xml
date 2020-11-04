@@ -5,4 +5,13 @@
 	<!-- Include some specific generic sniffs -->
 	<rule ref="Generic.Functions.OpeningFunctionBraceBsdAllman"/>
 	<rule ref="Generic.NamingConventions.UpperCaseConstantName"/>
+	<rule ref="Generic.NamingConventions.UpperCaseConstantName"/>
+	<rule ref="Generic.Formatting.SpaceAfterCast" />
+	<rule ref="Generic.Formatting.MultipleStatementAlignment" />
+	<rule ref="Generic.Formatting.SpaceAfterNot" />
+	<rule ref="Squiz.WhiteSpace.ObjectOperatorSpacing">
+		<properties>
+			<property name="ignoreNewlines" value="true" />
+		</properties>
+	</rule>
 </ruleset>
